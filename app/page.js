@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import {firestore} from "@/firebase";
 import { Box, Modal, Typography, Stack, TextField, Button } from "@mui/material";
 import { collection, deleteDoc, getDocs, query, doc, getDoc, setDoc } from "firebase/firestore";
+import { green } from "@mui/material/colors";
 
 export default function Home() {
 
@@ -71,6 +72,12 @@ export default function Home() {
     justifyContent="center"
     alignItems="center"
     gap = {2}
+    sx={{
+      backgroundImage: 'url("/pantry.jpeg")',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    }}
     >
       <Modal open={open} onClose={handleClose}>
         <Box 
@@ -117,16 +124,47 @@ export default function Home() {
         variant="outlined"
         placeholder="Search items..."
         onChange={(e) => setSearchTerm(e.target.value)}
-        sx={{ marginBottom: 2 }}
+        sx={{
+          marginBottom: 2,
+          backgroundColor: "#333", // Set the background color of the input
+          "& .MuiOutlinedInput-root": {
+            "& fieldset": {
+              borderColor: "white", // Set border color to white
+            },
+            "&:hover fieldset": {
+              borderColor: "white", // Maintain white border color on hover
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "white", // Maintain white border color when focused
+            },
+          },
+          "& .MuiInputBase-input": {
+            color: "white", // Change input text color to white
+          },
+          "& .MuiInputLabel-root": {
+            color: "white", // Change label color to white
+          },
+          "& .MuiInputLabel-root.Mui-focused": {
+            color: "white", // Change label color to white when focused
+          },
+        }}
       />
       
-      <Button variant="contained" onClick={()=>{
-        handleOpen()
-      }}>Add New Item</Button>
+      <Button 
+        variant="contained"
+        onClick={()=>{handleOpen()}}
+        sx={{
+          backgroundColor: "#DEB887", 
+          color: "white", 
+          "&:hover": {
+            backgroundColor: "#0056b3", 
+          },
+        }}
+        >Add New Item</Button>
 
       <Box border="1px solid #333">
           <Box width="800px" height="100px" bgcolor="#ADD8E6" display="flex" justifyContent="center" alignItems="center">
-            <Typography variant="h2" color="#333">Inventory Items</Typography>
+            <Typography variant="h2" color="#800000">Inventory Items</Typography>
           </Box>
 
         <Stack width="800px" height="300px" spacing={2} overflow="auto">
@@ -147,12 +185,20 @@ export default function Home() {
                   variant="contained"
                   onClick={()=>{
                     addItem(name)
-                  }}>Add</Button>
+                  }}
+                  sx={{
+                    backgroundColor: "green"
+                  }}
+                  >Add</Button>
                   <Button
                   variant="contained"
                   onClick={()=>{
                     removeItem(name)
-                  }}>Remove</Button>
+                  }}
+                  sx={{
+                    backgroundColor: "red"
+                  }}
+                  >Remove</Button>
                 </Stack>
               </Box>
             ))
