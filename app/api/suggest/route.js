@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, // Make sure you have your OpenAI API key in your environment variables
+});
 
 const systemPrompt = `
   You are a specialized AI suggestion bot designed to help users optimize the use of their kitchen inventory.
@@ -11,32 +15,21 @@ export async function POST(req) {
     try {
         const data = await req.json();
 
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        // Create the prompt to send to OpenAI
+        const prompt = `${systemPrompt}\n\nUser's ingredients: ${data[0].content}`;
 
-        const chat = model.startChat({
-            history: [
-                {
-                    role: "user",
-                    parts: [{ text: systemPrompt }],
-                },
-                {
-                    role: "model",
-                    parts: [{ text: "Understood. I'll act as the inventory suggestion bot with the given guidelines." }],
-                },
-                {
-                    role: 'user',
-                    parts: [{ text: data[0].content }], // Use the formatted string from the user
-                },
+        const response = await openai.chat.completions.create({
+            model: "gpt-4", // Specify the model you want to use (e.g., gpt-4, gpt-3.5-turbo)
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: data[0].content },
             ],
+            stream: true, // If you want streaming responses
         });
 
-        // Get the response from the AI model
-        const result = await chat.sendMessageStream([{ text: data[0].content }]);
-
         let fullResponse = "";
-        for await (const chunk of result.stream) {
-            const chunkText = await chunk.text();
+        for await (const chunk of response) {
+            const chunkText = chunk.choices[0].delta?.content || "";
             fullResponse += chunkText; // Accumulate the full response
         }
 
@@ -47,4 +40,3 @@ export async function POST(req) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
-
